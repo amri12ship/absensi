@@ -43,6 +43,8 @@ RUN composer dump-autoload --no-dev --no-scripts --classmap-authoritative \
     && php artisan package:discover --ansi
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/php.ini /usr/local/etc/php/conf.d/zz-app.ini
+COPY docker/www.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 RUN chmod +x /usr/local/bin/entrypoint.sh \
