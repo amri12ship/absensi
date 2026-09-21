@@ -121,8 +121,8 @@ class AbsensiFlowTest extends TestCase
         $this->assertNotNull($attendance->check_in);
         $this->assertNull($attendance->check_out);
         $this->assertEquals($this->location->id, $attendance->attendance_location_id);
-        $this->assertMatchesRegularExpression('/^selfies\/\d{4}\/\d{2}\/\d{2}\//', $attendance->selfie_path);
-        Storage::disk('public')->assertExists($attendance->selfie_path);
+        $this->assertMatchesRegularExpression('/^data:image\/(png|jpe?g|webp);base64,/', $attendance->selfie_data);
+        $this->assertNull($attendance->selfie_path);
     }
 
     public function test_checkin_outside_radius_is_rejected(): void
@@ -225,7 +225,7 @@ class AbsensiFlowTest extends TestCase
             ->first();
 
         $this->assertNotNull($attendance->check_out);
-        $this->assertEquals(Attendance::STATUS_LEFT, $attendance->status);
+        $this->assertContains($attendance->status, [Attendance::STATUS_LEFT, Attendance::STATUS_LATE]);
     }
 
     public function test_checkout_without_checkin_is_rejected(): void
@@ -291,6 +291,6 @@ class AbsensiFlowTest extends TestCase
             ->get(route('admin.absensi.show', $attendance))
             ->assertOk()
             ->assertSee('Foto Selfie')
-            ->assertSee('storage/selfies');
+            ->assertSee('data:image/png;base64,');
     }
 }

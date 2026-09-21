@@ -50,6 +50,7 @@ class Attendance extends Model
         'check_out',
         'status',
         'selfie_path',
+        'selfie_data',
         'check_in_lat',
         'check_in_lng',
         'check_out_lat',
@@ -86,11 +87,15 @@ class Attendance extends Model
 
     public function getSelfieUrlAttribute(): ?string
     {
-        if (! $this->selfie_path) {
-            return null;
+        if ($this->selfie_data) {
+            return $this->selfie_data;
         }
 
-        return Storage::disk('public')->url($this->selfie_path);
+        if ($this->selfie_path) {
+            return Storage::disk('public')->url($this->selfie_path);
+        }
+
+        return null;
     }
 
     public function statusLabel(): string

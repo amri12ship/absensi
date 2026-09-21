@@ -10,8 +10,6 @@ use App\Services\AttendanceStatusService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Throwable;
 
@@ -115,7 +113,7 @@ class AttendanceController extends Controller
         }
 
         try {
-            $selfiePath = $this->storeSelfie($request->input('selfie'));
+            $selfieData = $this->validatedSelfie($request->input('selfie'));
 
             $checkInTime = now()->format('H:i:s');
             $status = app(AttendanceStatusService::class)
@@ -127,7 +125,7 @@ class AttendanceController extends Controller
                 'date' => now()->toDateString(),
                 'check_in' => $checkInTime,
                 'status' => $status,
-                'selfie_path' => $selfiePath,
+                'selfie_data' => $selfieData,
                 'check_in_lat' => (float) $request->input('latitude'),
                 'check_in_lng' => (float) $request->input('longitude'),
                 'check_in_distance' => (int) round($data->distanceTo((float) $request->input('latitude'), (float) $request->input('longitude'))),
@@ -185,11 +183,11 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        $selfiePath = $attendance->selfie_path;
+        $selfieData = $attendance->selfie_data;
 
         try {
             if ($request->filled('selfie')) {
-                $selfiePath = $this->storeSelfie($request->input('selfie'));
+                $selfieData = $this->validatedSelfie($request->input('selfie'));
             }
         } catch (Throwable $e) {
             return response()->json([
@@ -205,7 +203,7 @@ class AttendanceController extends Controller
             'check_out_lat' => (float) $request->input('latitude'),
             'check_out_lng' => (float) $request->input('longitude'),
             'check_out_distance' => (int) round($data->distanceTo((float) $request->input('latitude'), (float) $request->input('longitude'))),
-            'selfie_path' => $selfiePath,
+            'selfie_data' => $selfieData,
             'status' => $currentStatus === Attendance::STATUS_LATE ? Attendance::STATUS_LATE : Attendance::STATUS_LEFT,
         ]);
 
@@ -264,9 +262,9 @@ class AttendanceController extends Controller
         return preg_match('/^[A-Za-z0-9]{16,64}$/', $trimmed) ? $trimmed : null;
     }
 
-    private function storeSelfie(string $dataUri): string
+    private function validatedSelfie(string $dataUri): string
     {
-        if (! preg_match('/^data:image\/(png|jpe?g|webp);base64,/', $dataUri, $matches)) {
+        if (! preg_match('/^data:image\/(png|jpe?g|webp);base64,/', $dataUri)) {
             throw new \InvalidArgumentException('Format foto tidak valid.');
         }
 
@@ -280,14 +278,6 @@ class AttendanceController extends Controller
             throw new \InvalidArgumentException('Ukuran foto terlalu besar.');
         }
 
-        $extension = $matches[1] === 'jpeg' ? 'jpg' : $matches[1];
-        $filename = now()->format('Ymd_His').'_'.auth('web')->id().'_'.Str::random(6).'.'.$extension;
-        $path = 'selfies/'.now()->format('Y/m/d').'/'.$filename;
-
-        if (! Storage::disk('public')->put($path, $contents)) {
-            throw new \RuntimeException('Gagal menulis file selfie.');
-        }
-
-        return $path;
+        return $dataUri;
     }
 }
