@@ -16,5 +16,9 @@ php artisan config:cache
 php artisan route:cache
 php artisan migrate --force
 
+if ! php artisan tinker --execute="exit(\App\Models\User::exists() ? 0 : 1);" >/dev/null 2>&1; then
+    php artisan db:seed --force
+fi
+
 php-fpm -D
 exec nginx -g 'daemon off;'
