@@ -1,9 +1,0 @@
-.git
-.env
-.env.*
-!.env.example
-database/database.sqlite
-node_modules
-public/build
-tests
-vendor

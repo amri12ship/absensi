@@ -41,7 +41,6 @@ Route::middleware(['auth', 'active'])->group(function () {
 
     Route::prefix('admin')
         ->name('admin.')
-        ->middleware('role:admin')
         ->group(function () {
             Route::get('dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
@@ -77,7 +76,6 @@ Route::middleware(['auth', 'active'])->group(function () {
         });
 
     Route::name('employee.')
-        ->middleware('role:employee')
         ->group(function () {
             Route::get('dashboard', [EmployeeDashboardController::class, 'index'])->name('dashboard');
 

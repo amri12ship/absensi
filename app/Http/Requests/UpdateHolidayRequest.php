@@ -10,7 +10,7 @@ class UpdateHolidayRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return auth('web')->user()?->isAdmin() ?? false;
+        return auth('web')->check();
     }
 
     public function rules(): array
