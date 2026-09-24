@@ -30,7 +30,9 @@ class LocationController extends Controller
     {
         $validated = $request->validated();
 
-        AttendanceLocation::create($validated + [
+        AttendanceLocation::create([
+            ...$validated,
+            'status' => $validated['status'] ?? AttendanceLocation::STATUS_ACTIVE,
             'public_token' => AttendanceLocation::generateToken(),
         ]);
 

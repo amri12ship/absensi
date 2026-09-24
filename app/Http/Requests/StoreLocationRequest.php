@@ -20,7 +20,7 @@ class StoreLocationRequest extends FormRequest
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'radius' => ['required', 'integer', 'min:1', 'max:100000'],
-            'status' => ['required', 'in:'.AttendanceLocation::STATUS_ACTIVE.','.AttendanceLocation::STATUS_INACTIVE],
+            'status' => ['sometimes', 'in:'.AttendanceLocation::STATUS_ACTIVE.','.AttendanceLocation::STATUS_INACTIVE],
         ];
     }
 
